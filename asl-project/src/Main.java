@@ -6,20 +6,26 @@ import java.nio.channels.SocketChannel;
 public class Main {
 
 	public static void main(String[] args) {
-		Thread t = new Thread(new ServerThread());
+		int N,R,T;
+		if(args.length == 3){
+		//arguments
+		N = Integer.parseInt(args[0]);
+		R = Integer.parseInt(args[1]);
+		T = Integer.parseInt(args[2]);
+		}
+		
+		ServerThread t = new ServerThread();
 		t.start();
 		
 		try {
 			Thread.sleep(2000);
-		} catch (InterruptedException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		}
 		
-		String newData = "blablablablablablablablablablablablablablablablabla";
+		
+	
+		
+		String newData = "blabla";
 		
 		SocketChannel channel;
-		try {
 			channel = SocketChannel.open(new InetSocketAddress("localhost", 55554));
 			ByteBuffer buf = ByteBuffer.allocate(BUFFER_SIZE);
 			buf.clear();
@@ -28,6 +34,7 @@ public class Main {
 
 			//buf.flip();
 			
+			//can maybe be done easier
 			for(int j=0; j<=newDataBytes.length/BUFFER_SIZE; j++){
 				for(int i=0; i<BUFFER_SIZE && i+j*BUFFER_SIZE < newDataBytes.length; i++){
 					buf.put(newDataBytes[i + j*BUFFER_SIZE]);
@@ -36,24 +43,20 @@ public class Main {
 				channel.write(buf);
 				buf.clear();
 			}
+			//IMPORTANT!! otherwise read on server site never ends
+			channel.close();
 			
-//			while(buf.hasRemaining()) {
-//			    channel.write(buf);
-//			}
-			
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+
 		
-		try {
 			Thread.sleep(3000);
-		} catch (InterruptedException e) {
+			
+		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		
-		ServerThread.stopServer = true;
+		t.stopServer();
+		
 		
 	}
 	
