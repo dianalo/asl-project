@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="asl-project" default="compile" basedir=".">
+	<!--set directories-->
+	<property name="build" location="build"/>
+	<property name="src" location="src"/>
+	
+	<!--create build directory-->
+  	<target name="init">
+    	<mkdir dir="${build}"/>
+  	</target>
+
+	<!--compile the source files into ${build}-->
+	<target name="compile" depends="init">
+		<javac srcdir="${src}" destdir="${build}"/>
+	</target>
+
+	<!--clean up-->
+	<target name="clean">
+		<delete dir="${build}"/>
+	</target>
+</project>
