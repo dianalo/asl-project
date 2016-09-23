@@ -1,3 +1,4 @@
+package ch.eth.asl.dianalo.project;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
@@ -51,7 +52,7 @@ public class ServerThread extends Thread{
 					
 					//PARSE MESSAGE
 					//Request req = Request.parse(message);	
-					System.out.println(message);
+					System.out.println("Message: " + message);
 					
 					//HASH key
 					int hash = Math.abs(message.hashCode() % NO_OF_SERVERS);

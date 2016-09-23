@@ -1,6 +1,8 @@
-import java.util.concurrent.LinkedBlockingQueue;
+package ch.eth.asl.dianalo.project;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
-public class WriteQueue extends LinkedBlockingQueue<Request> {
+public class ReadQueue extends ConcurrentLinkedQueue<Request> {
+
 	@Override
 	public boolean add(Request r){
 		boolean success = super.add(r);

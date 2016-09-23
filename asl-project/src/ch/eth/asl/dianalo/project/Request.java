@@ -1,3 +1,4 @@
+package ch.eth.asl.dianalo.project;
 
 public class Request {
 	public enum Type {GET, SET, DELETE};
