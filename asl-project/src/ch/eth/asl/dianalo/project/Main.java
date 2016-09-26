@@ -16,8 +16,18 @@ public class Main {
 		T = Integer.parseInt(args[2]);
 		}
 		
-		ServerThread t = new ServerThread();
+		QueueManager qm = new QueueManager(Helper.NO_OF_SERVERS);
+		
+		ServerThread t = new ServerThread(qm);
 		t.start();
+		
+		try {
+			WriteThread w = new WriteThread(qm.getWriteQueue(0), new InetSocketAddress(Helper.localAddress, Helper.memcachedPort));
+			w.start();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		
 /*		try {
 			Thread.sleep(2000);
@@ -63,7 +73,5 @@ public class Main {
 		*/
 		
 	}
-	
-	private static final int BUFFER_SIZE = 48;
 
 }

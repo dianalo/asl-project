@@ -40,4 +40,12 @@ public class QueueManager {
 	public WriteRequest getWriteRequest(int serverNumber){
 		return writeQueues[serverNumber].poll();
 	}
+	
+	public ReadQueue getReadQueue(int serverNumber){
+		return readQueues[serverNumber];
+	}
+	
+	public WriteQueue getWriteQueue(int serverNumber){
+		return writeQueues[serverNumber];
+	}
 }

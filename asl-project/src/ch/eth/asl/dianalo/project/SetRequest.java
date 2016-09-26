@@ -1,7 +1,10 @@
 package ch.eth.asl.dianalo.project;
 
+import java.net.InetSocketAddress;
+
 public class SetRequest extends WriteRequest {
-	public SetRequest(String key, String value, int flags, int ttl, int len){
+	public SetRequest(InetSocketAddress clientAddress, String key, String value, int flags, int ttl, int len){
+		super(clientAddress);
 		this.key = key;
 		this.value = value;
 		this.flags = flags;

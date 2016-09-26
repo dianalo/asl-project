@@ -2,6 +2,11 @@ package ch.eth.asl.dianalo.project;
 import java.util.concurrent.LinkedBlockingQueue;
 
 public class WriteQueue extends LinkedBlockingQueue<WriteRequest> {
+	
+	public WriteQueue(){
+		super();
+	}
+	
 	@Override
 	public boolean add(WriteRequest r){
 		boolean success = super.add(r);

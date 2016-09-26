@@ -8,8 +8,9 @@ import java.nio.channels.*;
 
 public class ServerThread extends Thread{
 	
-	public ServerThread(){
+	public ServerThread(QueueManager qm){
 		try {
+			this.queueManager = qm;
 			socket = ServerSocketChannel.open().bind(new InetSocketAddress("localhost", 55554)
 			);
 			stopServer = false;
@@ -20,9 +21,8 @@ public class ServerThread extends Thread{
 	}
 	
 	private ServerSocketChannel socket;
+	private QueueManager queueManager;
 	private static boolean stopServer;
-	private final static int BUFFER_SIZE = 48;
-	private final static int NO_OF_SERVERS = 3;
 	
 	public ServerSocketChannel getSocket(){
 		return socket;
@@ -34,14 +34,17 @@ public class ServerThread extends Thread{
 
 	@Override
 	public void run() {
-		while(!stopServer)
-		{
-			try {
+		try {
+			while(!stopServer)
+			{
+			
 				//listen to incoming connections
 				SocketChannel conn =  socket.accept();
 				if(conn != null)
 				{
-					ByteBuffer buf = ByteBuffer.allocate(BUFFER_SIZE);
+					InetSocketAddress clientAddress = (InetSocketAddress) conn.getRemoteAddress();
+					
+					ByteBuffer buf = ByteBuffer.allocate(Helper.BUFFER_SIZE);
 					buf.clear();
 					int bytesRead;
 					byte[] totalReceivedMsg = null; //gets concatenated to full message
@@ -60,6 +63,8 @@ public class ServerThread extends Thread{
 						}
 						buf.clear();					
 					}
+					
+					conn.close();
 										
 					String txtMsg = new String(totalReceivedMsg);
 					//System.out.println(txtMsg);
@@ -72,32 +77,31 @@ public class ServerThread extends Thread{
 					
 					f.close();
 					fos.close();
-
 					
 					//PARSE MESSAGE
-					Request req = Request.parse(txtMsg);	
+					Request req = Request.makeRequest(clientAddress, txtMsg);	
 					System.out.println("Request type: " + req.getClass());
 					
 					//HASH key
-					int hash = Math.abs(req.getKey().hashCode() % NO_OF_SERVERS);
+					int hash = Math.abs(req.getKey().hashCode() % Helper.NO_OF_SERVERS);
 					System.out.println("Hash: " + hash);
 					
 					//ENQUEUE
 					//for WRITES&DELETES write queue
 					//for READS read queue
-					QueueManager qm = new QueueManager(NO_OF_SERVERS);
-					qm.enqueue(req, hash);
+					queueManager.enqueue(req, hash);
 					
-					SetRequest sr = (SetRequest) qm.getWriteRequest(hash);
+					SetRequest sr = (SetRequest) queueManager.getWriteRequest(hash);
 					System.out.println("Key: " + sr.getKey() + " Value: " + sr.getValue());
 					
-					conn.close();
-					
 				}
-			} catch (Exception e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
 			}
+			
+			socket.close();
+		
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
 	}
 	
