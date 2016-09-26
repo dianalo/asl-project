@@ -1,52 +1,38 @@
 package ch.eth.asl.dianalo.project;
 
-public class Request {
-	public enum Type {GET, SET, DELETE};
-	private Type type; 
-	private String key;
-	private String value;
+public abstract class Request {
+	protected String key;
 	
 	//maybe add something for time measurements...
-	
-	public Type getType(){
-		return type;
-	}
-	
+		
 	public String getKey(){
 		return key;
 	}
-	
-	public String getValue(){
-		return value;
-	}
-	
-	public Request(String type, String key) throws Exception{
-		switch(type){
-		case "GET":
-			this.type = Type.GET;
-			break;
-		case "SET":
-			this.type = Type.SET;
-			break;
-		case "DELETE":
-			this.type = Type.DELETE;
-			break;
-		default:
-			throw new Exception("Unknown request type.");
+				
+	public static Request parse(String rawRequest) throws Exception{
+		//don't look at value yet
+		String[] tokens = rawRequest.split("[\\s]+",6); //split at one or more whitespaces
+		if(tokens.length == 2){
+			if(tokens[0].equals("get")){
+				return new GetRequest(tokens[1]);
+			}
+			else if(tokens[0].equals("delete")){
+				return new DeleteRequest(tokens[1]);
+			}
+			else{
+				throw new Exception("Invalid memcached request.");
+			}
 		}
-		
-		this.key = key;
-	}
-	
-	public Request(String type, String key, String value) throws Exception{
-		this(type, key);
-		
-		if(this.type == Type.SET){
-			this.value = value;
+		else if(tokens.length == 6){
+			if(tokens[0].equals("set")){
+				return new SetRequest(tokens[1], tokens[5], Integer.parseInt(tokens[2]), Integer.parseInt(tokens[3]), Integer.parseInt(tokens[4]));
+			}
+			else{
+				throw new Exception("Invalid memcached request.");
+			}
 		}
-	}
-	
-	public static Request parse(String rawRequest) throws UnsupportedOperationException{
-		throw new UnsupportedOperationException("Not implemented yet.");
+		else{
+			throw new Exception("Invalid memcached request.");
+		}
 	}
 }

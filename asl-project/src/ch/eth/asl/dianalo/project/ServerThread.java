@@ -1,8 +1,16 @@
 package ch.eth.asl.dianalo.project;
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
 import java.nio.channels.*;
+import java.nio.file.OpenOption;
+import java.nio.file.StandardOpenOption;
+import java.util.HashSet;
+import java.util.Set;
+
+import javax.imageio.stream.FileImageInputStream;
 
 public class ServerThread extends Thread{
 	
@@ -42,20 +50,43 @@ public class ServerThread extends Thread{
 					ByteBuffer buf = ByteBuffer.allocate(BUFFER_SIZE);
 					buf.clear();
 					int bytesRead;
+					byte[] totalReceivedMsg = null; //gets concatenated to full message
 					String message = "";
-					while ((bytesRead = conn.read(buf)) >= 0)
+					while ((bytesRead = conn.read(buf)) >= 0) // maybe cover case for 0 bytes are read!!
 					{
 						buf.flip();
-						message += new String(buf.array()).substring(0, bytesRead);			
+						byte[] roundReceivedMsg = new byte[bytesRead];
+						//write from buffer to array
+						buf.get(roundReceivedMsg, 0, bytesRead);
+						if(totalReceivedMsg == null){
+							totalReceivedMsg = new byte[bytesRead]; 
+							System.arraycopy(roundReceivedMsg, 0, totalReceivedMsg, 0, bytesRead);
+						}
+						else{
+							totalReceivedMsg = Helper.concatenateBytes(totalReceivedMsg, roundReceivedMsg);
+						}
 						buf.clear();					
 					}
+										
+					String txtMsg = new String(totalReceivedMsg);
+					//System.out.println(txtMsg);
+					
+					FileOutputStream fos = new FileOutputStream("/Users/loris/git/asl-project/resources/LogFile", true);
+					FileChannel f = fos.getChannel();
+					
+					ByteBuffer fBuf = ByteBuffer.wrap(totalReceivedMsg);
+					f.write(fBuf);
+					
+					f.close();
+					fos.close();
+
 					
 					//PARSE MESSAGE
-					//Request req = Request.parse(message);	
-					System.out.println("Message: " + message);
+					Request req = Request.parse(txtMsg);	
+					System.out.println("Request type: " + req.getClass());
 					
 					//HASH key
-					int hash = Math.abs(message.hashCode() % NO_OF_SERVERS);
+					int hash = Math.abs(req.getKey().hashCode() % NO_OF_SERVERS);
 					System.out.println("Hash: " + hash);
 					
 					//ENQUEUE
