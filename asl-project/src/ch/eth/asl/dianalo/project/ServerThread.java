@@ -1,16 +1,10 @@
 package ch.eth.asl.dianalo.project;
-import java.io.File;
+
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
 import java.nio.channels.*;
-import java.nio.file.OpenOption;
-import java.nio.file.StandardOpenOption;
-import java.util.HashSet;
-import java.util.Set;
-
-import javax.imageio.stream.FileImageInputStream;
 
 public class ServerThread extends Thread{
 	
@@ -51,7 +45,6 @@ public class ServerThread extends Thread{
 					buf.clear();
 					int bytesRead;
 					byte[] totalReceivedMsg = null; //gets concatenated to full message
-					String message = "";
 					while ((bytesRead = conn.read(buf)) >= 0) // maybe cover case for 0 bytes are read!!
 					{
 						buf.flip();
@@ -90,9 +83,13 @@ public class ServerThread extends Thread{
 					System.out.println("Hash: " + hash);
 					
 					//ENQUEUE
-					//for WRITES&DELETES normal queue
-					//for READS concurrent queue
-
+					//for WRITES&DELETES write queue
+					//for READS read queue
+					QueueManager qm = new QueueManager(NO_OF_SERVERS);
+					qm.enqueue(req, hash);
+					
+					SetRequest sr = (SetRequest) qm.getWriteRequest(hash);
+					System.out.println("Key: " + sr.getKey() + " Value: " + sr.getValue());
 					
 					conn.close();
 					

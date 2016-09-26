@@ -1,10 +1,10 @@
 package ch.eth.asl.dianalo.project;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
-public class ReadQueue extends ConcurrentLinkedQueue<Request> {
+public class ReadQueue extends ConcurrentLinkedQueue<ReadRequest> {
 
 	@Override
-	public boolean add(Request r){
+	public boolean add(ReadRequest r){
 		boolean success = super.add(r);
 		//start measurement of queue time of request
 		//r.queuetime.start
@@ -12,8 +12,8 @@ public class ReadQueue extends ConcurrentLinkedQueue<Request> {
 	}
 	
 	@Override
-	public Request poll(){
-		Request req = super.poll();
+	public ReadRequest poll(){
+		ReadRequest req = super.poll();
 		//end measurement of queue time of request
 		//req.queuetime.end();
 		return req;
